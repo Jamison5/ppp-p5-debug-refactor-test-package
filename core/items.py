@@ -120,13 +120,18 @@ class ItemPool:
 
     def show_items(self):
         max_name, max_order = 0, 0
+
         for item in self.items.values():
             max_name = max(max_name, len(item.name))
             max_order = max(max_order, item.get_order())
         out = 'ITEMS\n'
+
         for item_name in sorted(self.items.keys()):
             item = self.items[item_name]
-            out += item.item2line(padding=max_name - len(item_name), order=max_order) + '\n'
+            name_string = item.get_list_item_str()
+            price_string = item.get_price_str(order=max_order)
+            padding = max_name - len(item.name)
+            out += f'{name_string}{"." * padding} {price_string}\n'
         return out
     
     def __repr__(self):
