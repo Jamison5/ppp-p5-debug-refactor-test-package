@@ -1,7 +1,6 @@
 import math
 import random
-
-from errors import *
+from core.errors import *
 
 class Item:
     def __init__(self, name, price):

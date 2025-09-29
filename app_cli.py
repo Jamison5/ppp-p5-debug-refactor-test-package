@@ -1,7 +1,7 @@
 import random
-from errors import *
-from items import *
-from shoppinglist import *
+from core.errors import *
+from core.items import *
+from core.shoppinglist import *
 
 class AppEngine:
     def __init__(self, shoppingList = None, items = None):
