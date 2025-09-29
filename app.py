@@ -76,7 +76,7 @@ class AppEngine:
         item_tuple = item_str.split(': ')
         if len(item_tuple)==2:
             name, price = item_tuple
-            item = Item(name, price)
+            item = Item(name, float(price))
             self.items.add_item(item)
             self.message = f'{item} added successfully.'
         else:
