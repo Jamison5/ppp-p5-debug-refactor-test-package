@@ -44,32 +44,43 @@ class Item:
 
         return format_style.format(total)
 
-    def get_list_item_str():
-        pass
+    def get_list_item_str(self, quantity=None, leading_dash=True):
+        
+        if quantity is None:
+            quantity_string = ''
+        else:
+            quantity_string = f' ({quantity}x)'
+
+        if leading_dash:
+            dash = '- '
+        else:
+            dash = ''
+
+        return f'{dash}{self.name}{quantity_string}'
 
             
 
 
 
-    def item2line(self, quantity = None, hide_price = False, order = None, padding = 0,leading_dash = True):
-        # quantity
-        if quantity is None:
-            qnt_str = ''
-        else:
-            qnt_str = f' ({quantity}x)'
-        # price
-        if order is None:
-            order = self.get_order()
-        prcStr = '${:0' + str(order + 4) + '.2f}'
-        prcStr = prcStr.format(self.price * (quantity or 1))
-        if hide_price:
-            prcStr = f'${"?" * (order + 1)}.??'
+    # def item2line(self, quantity = None, hide_price = False, order = None, padding = 0,leading_dash = True):
+    #     # quantity
+    #     if quantity is None:
+    #         qnt_str = ''
+    #     else:
+    #         qnt_str = f' ({quantity}x)'
+    #     # price
+    #     if order is None:
+    #         order = self.get_order()
+    #     prcStr = '${:0' + str(order + 4) + '.2f}'
+    #     prcStr = prcStr.format(self.price * (quantity or 1))
+    #     if hide_price:
+    #         prcStr = f'${"?" * (order + 1)}.??'
 
-        # dash
-        dash = ''
-        if leading_dash:
-            dash = '- '
-        return f'{dash}{self.name}{qnt_str} ...{"." * padding} {prcStr}'
+    #     # dash
+    #     dash = ''
+    #     if leading_dash:
+    #         dash = '- '
+    #     return f'{dash}{self.name}{qnt_str} ...{"." * padding} {prcStr}'
     
     def __repr__(self):
         return f'Item({self.name}, {self.price})'
