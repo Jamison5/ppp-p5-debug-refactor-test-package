@@ -29,13 +29,10 @@ class Item:
         if order is None:
             target_order = normal_order
         else:
-            if order > normal_order:
-                target_order = normal_order
-            else:
-                target_order = order
+            target_order = order
 
         if hide_price:
-            min_digits = normal_order + 1
+            min_digits = max(normal_order + 1, target_order + 1)
             return f'${"?" * min_digits}.??'
         
         min_digits = max(normal_order + 1, target_order + 1)
@@ -119,19 +116,18 @@ class ItemPool:
         return random.sample(list(self.items.values()), min(sample_size, len(self.items)))
 
     def show_items(self):
-        max_name, max_order = 0, 0
-
-        for item in self.items.values():
-            max_name = max(max_name, len(item.name))
-            max_order = max(max_order, item.get_order())
+        max_name_len = max(len(item.name) for item in self.items.values())
+        max_order = max(item.get_order() for item in self.items.values())
+            
         out = 'ITEMS\n'
 
         for item_name in sorted(self.items.keys()):
             item = self.items[item_name]
             name_string = item.get_list_item_str()
             price_string = item.get_price_str(order=max_order)
-            padding = max_name - len(item.name)
-            out += f'{name_string} {"." * padding} {price_string}\n'
+            padding = max_name_len - len(item.name)
+            dots = '...'
+            out += f'{name_string} {dots + "." * padding} {price_string}\n'
         return out
     
     def __repr__(self):
