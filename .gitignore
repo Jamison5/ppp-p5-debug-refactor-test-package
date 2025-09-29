@@ -145,6 +145,7 @@ ENV/
 env.bak/
 venv.bak/
 .sailconfig.json
+p5-env/
 
 # Spyder project settings
 .spyderproject
