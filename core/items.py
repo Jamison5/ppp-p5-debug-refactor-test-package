@@ -131,7 +131,7 @@ class ItemPool:
             name_string = item.get_list_item_str()
             price_string = item.get_price_str(order=max_order)
             padding = max_name - len(item.name)
-            out += f'{name_string}{"." * padding} {price_string}\n'
+            out += f'{name_string} {"." * padding} {price_string}\n'
         return out
     
     def __repr__(self):
