@@ -18,12 +18,34 @@ class Item:
     def get_price_str(self, quantity=None, order=None, hide_price=False): 
 
         if quantity is None:
-            qnt_str = str(self.price)
+            qty = 1
         else:
-            qnt_str = f'{self.price * quantity}'
+            qty = quantity
+
+        total = round(self.price * qty, 2)
+
+        normal_order = self.get_order()
 
         if order is None:
-            order = self.get_order()
+            target_order = normal_order
+        else:
+            if order > normal_order:
+                target_order = normal_order
+            else:
+                target_order = order
+
+        if hide_price:
+            min_digits = normal_order + 1
+            return f'${"?" * min_digits}.??'
+        
+        min_digits = max(normal_order + 1, target_order + 1)
+
+        format_style = '${:0' + str(min_digits + 3) + '.2f}'
+
+        return format_style.format(total)
+
+    def get_list_item_str():
+        pass
 
             
 
