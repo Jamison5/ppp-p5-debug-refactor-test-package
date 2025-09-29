@@ -1,6 +1,6 @@
 import math
 import random
-from core.errors import *
+from .errors import *
 
 class Item:
     def __init__(self, name, price):
@@ -14,13 +14,27 @@ class Item:
     def get_order(self):
         return math.floor(round(math.log(self.price, 10), 10))
 
+
+    def get_price_str(self, quantity=None, order=None, hide_price=False): 
+
+        if quantity is None:
+            qnt_str = str(self.price)
+        else:
+            qnt_str = f'{self.price * quantity}'
+
+        if order is None:
+            order = self.get_order()
+
+            
+
+
+
     def item2line(self, quantity = None, hide_price = False, order = None, padding = 0,leading_dash = True):
         # quantity
         if quantity is None:
             qnt_str = ''
         else:
             qnt_str = f' ({quantity}x)'
-
         # price
         if order is None:
             order = self.get_order()
