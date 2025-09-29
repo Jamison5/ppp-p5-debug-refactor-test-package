@@ -1,5 +1,5 @@
-from core.errors import *
-from core.items import *
+from .errors import *
+from .items import *
 import random
 
 class ShoppingList:
