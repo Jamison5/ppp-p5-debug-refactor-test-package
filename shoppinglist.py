@@ -10,7 +10,7 @@ class ShoppingList:
 
     def refresh(self, item_pool, size = None, quantities = None):
         if size is None:
-            size = random.randint(1,item_pool.get_size()+1)
+            size = random.randint(1,item_pool.get_size())
         if type(size) != int or size < 1:
             raise ValueError()
         if size > item_pool.get_size():
