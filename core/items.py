@@ -1,10 +1,17 @@
 import math
 import random
-from .errors import *
+from .errors import (
+    InvalidItemNameError,
+    InvalidItemPriceError,
+    InvalidItemPoolError,
+    NonExistingItemError,
+    DuplicateItemError,
+)
+
 
 class Item:
     def __init__(self, name, price):
-        if type(name) != str or not name:
+        if not isinstance(name, str) or not name:
             raise InvalidItemNameError(name)
         self.name = name
         if not isinstance(price, (float, int)) or not price > 0:
@@ -14,9 +21,7 @@ class Item:
     def get_order(self):
         return math.floor(round(math.log(self.price, 10), 10))
 
-
-    def get_price_str(self, quantity=None, hide_price=False, order=None): 
-
+    def get_price_str(self, quantity=None, hide_price=False, order=None):
         if quantity is None:
             qty = 1
         else:
@@ -33,49 +38,51 @@ class Item:
 
         if hide_price:
             min_digits = max(normal_order + 1, target_order + 1)
-            return f'${"?" * min_digits}.??'
-        
+            return f"${'?' * min_digits}.??"
+
         min_digits = max(normal_order + 1, target_order + 1)
 
-        format_style = '${:0' + str(min_digits + 3) + '.2f}'
+        format_style = "${:0" + str(min_digits + 3) + ".2f}"
 
         return format_style.format(total)
 
     def get_list_item_str(self, quantity=None, leading_dash=True):
-        
         if quantity is None:
-            quantity_string = ''
+            quantity_string = ""
         else:
-            quantity_string = f' ({quantity}x)'
+            quantity_string = f" ({quantity}x)"
 
         if leading_dash:
-            dash = '- '
+            dash = "- "
         else:
-            dash = ''
+            dash = ""
 
-        return f'{dash}{self.name}{quantity_string}'
+        return f"{dash}{self.name}{quantity_string}"
 
-    
     def __repr__(self):
-        return f'Item({self.name}, {self.price})'
-    
+        return f"Item({self.name}, {self.price})"
+
     def __eq__(self, other):
-        return isinstance(other, Item) and self.name == other.name and self.price == other.price
-           
+        return (
+            isinstance(other, Item)
+            and self.name == other.name
+            and self.price == other.price
+        )
+
 
 class ItemPool:
-    def __init__(self, items = None):
+    def __init__(self, items=None):
         if not items:
             items = {}
-        if type(items) != dict:
+        if not isinstance(items, dict):
             raise InvalidItemPoolError()
         for key, val in items.items():
-            if type(key) != str or type(val) != Item:
+            if not isinstance(key, str) or not isinstance(val, Item):
                 raise InvalidItemPoolError()
         self.items = items
 
     def add_item(self, item):
-        if type(item) != Item:
+        if not isinstance(item, Item):
             raise InvalidItemPoolError()
         if item.name in self.items:
             raise DuplicateItemError()
@@ -90,10 +97,12 @@ class ItemPool:
         return len(self.items)
 
     def sample_items(self, sample_size):
-        return random.sample(list(self.items.values()), min(sample_size, len(self.items)))
-    
+        return random.sample(
+            list(self.items.values()), min(sample_size, len(self.items))
+        )
+
     def __repr__(self):
-        return f'ItemPool({self.items})'
+        return f"ItemPool({self.items})"
 
     def __eq__(self, other):
         return isinstance(other, ItemPool) and self.items == other.items
