@@ -2,6 +2,7 @@ import math
 import pytest
 from core.items import Item, ItemPool
 from core.shoppinglist import ShoppingList
+from core.appengine import AppEngine
 from core.errors import (
     InvalidItemNameError,
     InvalidItemPriceError,
@@ -23,6 +24,8 @@ def test_invalid_item_init():
         Item('', 3.25)
     with pytest.raises(InvalidItemPriceError):
         Item('bread', -3.25)
+    with pytest.raises(InvalidItemNameError):
+        Item(5, 3.25)
 
 def test_item_get_order():
     item = Item('bread', 3.25)
@@ -264,8 +267,60 @@ def test_itempool_len():
     assert len(slist) == 2
 
 
+def test_appengine_init():
+    engine = AppEngine()
+    assert engine.items is None
+    assert engine.shopping_list is None
+    assert engine.continue_execution is True
+    assert engine.message is None
+    assert engine.correct_answer is None
+    assert engine.status is None
+    item1 = Item("apple", 1.5)
+    pool = ItemPool({"apple": item1})
+    slist = ShoppingList(item_pool=pool)
+    engine = AppEngine(shopping_list=slist, items=pool)
+    assert engine.items == pool
+    assert engine.shopping_list == slist
+    assert engine.continue_execution is True
+    assert engine.message is None
+    assert engine.correct_answer is None
+    assert engine.status is None
 
-    
+def test_valid_appengine_process_add_item():
+    pool = ItemPool()
+    engine = AppEngine(items=pool)
+    engine.process_add_item("add apple: 1.5")
+    assert "apple" in pool.items
+    assert "added successfully" in engine.message
 
-    
-    
+
+def test_invalid_appengine_process_add_item():
+    pool = ItemPool()
+    engine = AppEngine(items=pool)
+    engine.process_add_item("add apple")  # Missing price
+    assert "Cannot add" in engine.message
+    assert "Usage: add" in engine.message
+    engine.process_add_item("add : 1.5")
+    assert isinstance(engine.message, InvalidItemNameError)
+    engine.process_add_item("add apple: not_a_number")
+    assert isinstance(engine.message, ValueError)
+    engine.process_add_item("add apple: 1.5")
+    engine.process_add_item("add apple: 1.5")
+    assert isinstance(engine.message, DuplicateItemError)
+    engine.process_add_item("add apple: -1.5")
+    assert isinstance(engine.message, InvalidItemPriceError)
+
+def test_valid_appengine_process_del_item():
+    pool = ItemPool()
+    engine = AppEngine(items=pool)
+    item = Item("apple", 1.5)
+    pool.add_item(item)
+    engine.process_del_item("del apple")
+    assert "apple" not in pool.items
+    assert engine.message == "apple removed successfully."
+
+def test_invalid_appengine_process_del_item():
+    pool = ItemPool()
+    engine = AppEngine(items=pool)
+    engine.process_del_item("del banana")
+    assert isinstance(engine.message, NonExistingItemError)
