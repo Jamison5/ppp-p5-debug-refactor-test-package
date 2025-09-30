@@ -1,9 +1,9 @@
 import math
 import pytest
-from core.items import Item, ItemPool
-from core.shoppinglist import ShoppingList
-from core.appengine import AppEngine
-from core.errors import (
+from shoppinglistapp.core.items import Item, ItemPool
+from shoppinglistapp.core.shoppinglist import ShoppingList
+from shoppinglistapp.core.appengine import AppEngine
+from shoppinglistapp.core.errors import (
     InvalidItemNameError,
     InvalidItemPriceError,
     InvalidItemPoolError,
