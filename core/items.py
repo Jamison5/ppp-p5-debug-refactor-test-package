@@ -15,7 +15,7 @@ class Item:
         return math.floor(round(math.log(self.price, 10), 10))
 
 
-    def get_price_str(self, quantity=None, order=None, hide_price=False): 
+    def get_price_str(self, quantity=None, hide_price=False, order=None): 
 
         if quantity is None:
             qty = 1
@@ -115,20 +115,20 @@ class ItemPool:
     def sample_items(self, sample_size):
         return random.sample(list(self.items.values()), min(sample_size, len(self.items)))
 
-    def show_items(self):
-        max_name_len = max(len(item.name) for item in self.items.values())
-        max_order = max(item.get_order() for item in self.items.values())
+    # def show_items(self):
+    #     max_name_len = max(len(item.name) for item in self.items.values())
+    #     max_order = max(item.get_order() for item in self.items.values())
             
-        out = 'ITEMS\n'
+    #     out = 'ITEMS\n'
 
-        for item_name in sorted(self.items.keys()):
-            item = self.items[item_name]
-            name_string = item.get_list_item_str()
-            price_string = item.get_price_str(order=max_order)
-            padding = max_name_len - len(item.name)
-            dots = '...'
-            out += f'{name_string} {dots + "." * padding} {price_string}\n'
-        return out
+    #     for item_name in sorted(self.items.keys()):
+    #         item = self.items[item_name]
+    #         name_string = item.get_list_item_str()
+    #         price_string = item.get_price_str(order=max_order)
+    #         padding = max_name_len - len(item.name)
+    #         dots = '...'
+    #         out += f'{name_string} {dots + "." * padding} {price_string}\n'
+    #     return out
     
     def __repr__(self):
         return f'ItemPool({self.items})'
