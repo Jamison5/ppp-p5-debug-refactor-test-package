@@ -1,9 +1,9 @@
 """CLI interface for managing the shopping list application."""
 
 import random
-from core.items import Item, ItemPool
-from core.shoppinglist import ShoppingList
-from core.appengine import AppEngine
+from shoppinglistapp.core.items import Item, ItemPool
+from shoppinglistapp.core.shoppinglist import ShoppingList
+from shoppinglistapp.core.appengine import AppEngine
 
 
 class AppCLI:
