@@ -324,3 +324,25 @@ def test_invalid_appengine_process_del_item():
     engine = AppEngine(items=pool)
     engine.process_del_item("del banana")
     assert isinstance(engine.message, NonExistingItemError)
+
+
+def test_appengine_process_answer():
+    engine = AppEngine()
+    engine.correct_answer = 5.25
+    engine.process_answer("5.25")
+    assert engine.message == "Correct!"
+    assert engine.correct_answer is None
+    engine = AppEngine()
+    engine.correct_answer = 3.50
+    engine.process_answer("2.75")
+    assert "Not Correct!" in engine.message
+    assert "$3.50" in engine.message
+    assert "$2.75" in engine.message
+    assert engine.correct_answer is None
+
+
+def test_invalid_appengine_process_answer():
+    engine = AppEngine()
+    engine.correct_answer = 2.0
+    engine.process_answer("not_a_number")
+    assert engine.message == "The provided answer is not a valid number!"
