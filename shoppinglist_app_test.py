@@ -9,60 +9,60 @@ from core.errors import (
     InvalidItemPoolError,
     DuplicateItemError,
     NonExistingItemError,
-    InvalidShoppingListSizeError
+    InvalidShoppingListSizeError,
 )
 
 
-
 def test_valid_item_init():
-    item = Item('bread', 3.25)
-    assert item.name == 'bread'
+    item = Item("bread", 3.25)
+    assert item.name == "bread"
     assert math.isclose(item.price, 3.25)
+
 
 def test_invalid_item_init():
     with pytest.raises(InvalidItemNameError):
-        Item('', 3.25)
+        Item("", 3.25)
     with pytest.raises(InvalidItemPriceError):
-        Item('bread', -3.25)
+        Item("bread", -3.25)
     with pytest.raises(InvalidItemNameError):
         Item(5, 3.25)
 
+
 def test_item_get_order():
-    item = Item('bread', 3.25)
+    item = Item("bread", 3.25)
     assert item.get_order() == 0
     item.price = 1000.0
     assert item.get_order() == 3
 
+
 def test_item_get_list_item_str():
-    item = Item('bread', 3.25)
-    assert item.get_list_item_str() == '- bread'
-    assert item.get_list_item_str(quantity=2) == '- bread (2x)'
-    assert item.get_list_item_str(
-        quantity=2,
-        leading_dash=True
-    ) == '- bread (2x)'
-    assert item.get_list_item_str(
-        quantity=2,
-        leading_dash=False
-    ) == 'bread (2x)'
+    item = Item("bread", 3.25)
+    assert item.get_list_item_str() == "- bread"
+    assert item.get_list_item_str(quantity=2) == "- bread (2x)"
+    assert item.get_list_item_str(quantity=2, leading_dash=True) == "- bread (2x)"
+    assert item.get_list_item_str(quantity=2, leading_dash=False) == "bread (2x)"
+
 
 def test_item_get_price_str():
-    item = Item('bread', 3.25)
-    assert item.get_price_str() == '$3.25'
-    assert item.get_price_str(quantity=2) == '$6.50'
-    assert item.get_price_str(hide_price=True) == '$?.??'
-    assert item.get_price_str(order=3) == '$0003.25'
+    item = Item("bread", 3.25)
+    assert item.get_price_str() == "$3.25"
+    assert item.get_price_str(quantity=2) == "$6.50"
+    assert item.get_price_str(hide_price=True) == "$?.??"
+    assert item.get_price_str(order=3) == "$0003.25"
+
 
 def test_item_repr():
-    item = Item('bread', 3.25)
-    assert repr(item) == 'Item(bread, 3.25)'
-    
+    item = Item("bread", 3.25)
+    assert repr(item) == "Item(bread, 3.25)"
+
+
 def test_item_eq():
-    item1 = Item('bread', 3.25)
-    item2 = Item('bread', 3.25)
-    item3 = Item('butter', 4.10)
+    item1 = Item("bread", 3.25)
+    item2 = Item("bread", 3.25)
+    item3 = Item("butter", 4.10)
     assert item1 == item2
     assert item1 != item3
+
 
 def test_valid_itempool_init():
     item1 = Item("apple", 1.5)
@@ -76,27 +76,30 @@ def test_valid_itempool_init():
     assert pool.items == {}
     assert isinstance(pool.items, dict)
 
+
 def test_valid_itempool_add_item():
     pool = ItemPool()
     item = Item("apple", 1.5)
     pool.add_item(item)
-    assert 'apple' in pool.items
-    assert pool.items['apple'] == item
+    assert "apple" in pool.items
+    assert pool.items["apple"] == item
+
 
 def test_invalid_itempool_init():
     with pytest.raises(InvalidItemPoolError):
-        ItemPool(items=['not', 'a', 'dict'])
+        ItemPool(items=["not", "a", "dict"])
     item = Item("apple", 1.0)
-    invalid_dict = { 123 : item }
+    invalid_dict = {123: item}
     with pytest.raises(InvalidItemPoolError):
         ItemPool(invalid_dict)
     invalid_dict = {"apple": "not_an_item"}
     with pytest.raises(InvalidItemPoolError):
         ItemPool(invalid_dict)
 
+
 def test_invalid_itempool_add_items():
     pool = ItemPool()
-    invalid_item = 'not an item'
+    invalid_item = "not an item"
     with pytest.raises(InvalidItemPoolError):
         pool.add_item(invalid_item)
     pool = ItemPool()
@@ -106,6 +109,7 @@ def test_invalid_itempool_add_items():
     with pytest.raises(DuplicateItemError):
         pool.add_item(item2)
 
+
 def test_valid_itempool_remove_item():
     pool = ItemPool()
     item = Item("apple", 1.5)
@@ -113,11 +117,13 @@ def test_valid_itempool_remove_item():
     pool.remove_item(item.name)
     assert item.name not in pool.items
 
+
 def test_invalid_itempool_remove_item():
     pool = ItemPool()
     item = Item("apple", 1.5)
     with pytest.raises(NonExistingItemError):
         pool.remove_item(item.name)
+
 
 def test_itempool_get_size():
     item1 = Item("apple", 1.5)
@@ -125,6 +131,7 @@ def test_itempool_get_size():
     items_dict = {"apple": item1, "banana": item2}
     pool = ItemPool(items_dict)
     assert pool.get_size() == 2
+
 
 def test_itempool_sample_items():
     item1 = Item("apple", 1.0)
@@ -137,6 +144,7 @@ def test_itempool_sample_items():
         assert isinstance(item, Item)
         assert item.name in pool.items
 
+
 def test_itempool_repr():
     item1 = Item("apple", 1.0)
     item2 = Item("banana", 2.0)
@@ -145,7 +153,8 @@ def test_itempool_repr():
     assert repr_str.startswith("ItemPool(")
     assert "apple" in repr_str
     assert "banana" in repr_str
-    assert "Item(" in repr_str 
+    assert "Item(" in repr_str
+
 
 def test_itempool_eq():
     item1a = Item("apple", 1.0)
@@ -163,6 +172,7 @@ def test_itempool_eq():
     assert pool1 != pool2
     assert pool1 != "not_an_itempool"
 
+
 def test_valid_shoppinglist_init():
     shoping_lst = ShoppingList()
     assert isinstance(shoping_lst, ShoppingList)
@@ -175,7 +185,7 @@ def test_valid_shoppinglist_init():
     for item, qty in slist.list:
         assert isinstance(item, Item)
         assert isinstance(qty, int)
-    items = {f"item{i}": Item(f"item{i}", i+1) for i in range(5)}
+    items = {f"item{i}": Item(f"item{i}", i + 1) for i in range(5)}
     pool = ItemPool(items)
     slist = ShoppingList(size=3, quantities=[2, 3, 1], item_pool=pool)
     assert len(slist.list) == 3
@@ -185,7 +195,7 @@ def test_valid_shoppinglist_init():
 
 
 def test_valid_shoppinglist_refresh():
-    items = {f"item{i}": Item(f"item{i}", i+1) for i in range(5)}
+    items = {f"item{i}": Item(f"item{i}", i + 1) for i in range(5)}
     pool = ItemPool(items)
     slist = ShoppingList()
     slist.refresh(pool)
@@ -194,14 +204,14 @@ def test_valid_shoppinglist_refresh():
         assert isinstance(item, Item)
         assert isinstance(qty, int)
         assert qty >= 1
-    items = {f"item{i}": Item(f"item{i}", i+1) for i in range(5)}
+    items = {f"item{i}": Item(f"item{i}", i + 1) for i in range(5)}
     pool = ItemPool(items)
     slist = ShoppingList()
     slist.refresh(pool, size=3, quantities=[2, 3, 1])
     assert len(slist.list) == 3
     for (_, qty), expected_qty in zip(slist.list, [2, 3, 1]):
         assert qty == expected_qty
-    items = {f"item{i}": Item(f"item{i}", i+1) for i in range(5)}
+    items = {f"item{i}": Item(f"item{i}", i + 1) for i in range(5)}
     pool = ItemPool(items)
     slist = ShoppingList()
     short_quantities = [2]
@@ -224,7 +234,7 @@ def test_valid_shoppinglist_refresh():
 
 
 def test_invalid_shoppinglist_refresh():
-    items = {f"item{i}": Item(f"item{i}", i+1) for i in range(5)}
+    items = {f"item{i}": Item(f"item{i}", i + 1) for i in range(5)}
     pool = ItemPool(items)
     slist = ShoppingList()
     with pytest.raises(ValueError):
@@ -237,12 +247,13 @@ def test_invalid_shoppinglist_refresh():
         slist.refresh(pool, size=3, quantities=[1, 0, 2])
     with pytest.raises(ValueError):
         slist.refresh(pool, size=3, quantities=[1, "a", 2])
-    items = {f"item{i}": Item(f"item{i}", i+1) for i in range(2)}
+    items = {f"item{i}": Item(f"item{i}", i + 1) for i in range(2)}
     pool = ItemPool(items)
     slist = ShoppingList()
     with pytest.raises(InvalidShoppingListSizeError):
         slist.refresh(pool, size=5)
-    
+
+
 def test_itempool_get_total_price():
     item1 = Item("apple", 1.5)
     item2 = Item("banana", 2.0)
@@ -251,6 +262,7 @@ def test_itempool_get_total_price():
     total_expected = 2 * item1.price + 3 * item2.price
     assert slist.get_total_price() == round(total_expected, 2)
 
+
 def test_itempool_get_item_price():
     item1 = Item("apple", 1.5)
     item2 = Item("banana", 2.0)
@@ -258,6 +270,7 @@ def test_itempool_get_item_price():
     slist.list = [(item1, 2), (item2, 3)]
     assert slist.get_item_price(0) == round(2 * item1.price, 2)
     assert slist.get_item_price(1) == round(3 * item2.price, 2)
+
 
 def test_itempool_len():
     item1 = Item("apple", 1.5)
@@ -286,6 +299,7 @@ def test_appengine_init():
     assert engine.correct_answer is None
     assert engine.status is None
 
+
 def test_valid_appengine_process_add_item():
     pool = ItemPool()
     engine = AppEngine(items=pool)
@@ -310,6 +324,7 @@ def test_invalid_appengine_process_add_item():
     engine.process_add_item("add apple: -1.5")
     assert isinstance(engine.message, InvalidItemPriceError)
 
+
 def test_valid_appengine_process_del_item():
     pool = ItemPool()
     engine = AppEngine(items=pool)
@@ -318,6 +333,7 @@ def test_valid_appengine_process_del_item():
     engine.process_del_item("del apple")
     assert "apple" not in pool.items
     assert engine.message == "apple removed successfully."
+
 
 def test_invalid_appengine_process_del_item():
     pool = ItemPool()
