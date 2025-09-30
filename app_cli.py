@@ -12,6 +12,65 @@ class AppEngine:
         self.correct_answer = None
         self.status = None
 
+    def show_items(self):
+
+        item_dictionary = self.items.items 
+
+        max_name_len = max(len(item.name) for item in item_dictionary.values())
+        max_order = max(item.get_order() for item in item_dictionary.values())
+            
+        out = 'ITEMS\n'
+
+        for item_name in sorted(item_dictionary.keys()):
+            item = item_dictionary[item_name]
+            name_string = item.get_list_item_str()
+            price_string = item.get_price_str(order=max_order)
+            padding = max_name_len - len(item.name)
+            dots = '...'
+            out += f'{name_string} {dots + "." * padding} {price_string}\n'
+        return out
+
+    def show_list(self, mask_index=None):
+
+        line_base_len = max(len('TOTAL') - 4, max(len(item.name) for item, _ in self.shopping_list.list))
+        total = Item('TOTAL', self.shopping_list.get_total_price())
+
+        max_order = total.get_order()
+        max_name = len(total.name)
+
+        for item, _ in self.shopping_list.list:
+            max_name = max(max_name, len(item.name))
+            max_order = max(max_order, item.get_order())
+
+        out = 'SHOPPING LIST\n'
+
+        # Display items
+        for i, (item, quantity) in enumerate(self.shopping_list.list):
+            hide_price = mask_index == i
+            padding = line_base_len - len(item.name)
+            name_string = item.get_list_item_str(quantity=quantity)
+            price_string = item.get_price_str(
+                quantity=quantity, 
+                order=max_order, 
+                hide_price=hide_price
+                )
+            dots = '...'
+            out += f'{name_string} {dots + "." * padding} {price_string}\n'
+
+        # TOTAL line
+        hide_price = mask_index == len(self.shopping_list.list)
+        q_len = 5
+        d_len = 2
+        padding = max_name - len(total.name) + q_len + d_len
+        total_name_string = total.get_list_item_str(leading_dash=False)
+        total_price_string = total.get_price_str(order=max_order, hide_price=hide_price)
+        dots = '...'
+        total_line = f'{total_name_string} {dots + "." * padding} {total_price_string}'
+
+        hline = '-' * len(total_line) + '\n'
+
+        return out + hline + total_line + '\n'
+
     def run(self):
         while True:
             prompt = 'What would you like to do? '
@@ -64,9 +123,9 @@ class AppEngine:
     def process_show(self, cmd):
         what = cmd[ 5: ]
         if what == 'items' :
-            self.message = self.items.show_items()
+            self.message = self.show_items()
         elif what == 'list' :
-            self.message = self.shopping_list.show_list()
+            self.message = self.show_list()
         else:
             self.message= f'Cannot show {what}.\n'
             self.message += 'Usage: show list|items'
