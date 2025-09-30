@@ -1,7 +1,8 @@
 """
-Module responsible for designating custom errors for input 
+Module responsible for designating custom errors for input
 validation through the applications processes.
 """
+
 
 class InvalidItemNameError(Exception):
     """
