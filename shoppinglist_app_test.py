@@ -7,7 +7,8 @@ from core.errors import (
     InvalidItemPriceError,
     InvalidItemPoolError,
     DuplicateItemError,
-    NonExistingItemError
+    NonExistingItemError,
+    InvalidShoppingListSizeError
 )
 
 
@@ -181,4 +182,90 @@ def test_valid_shoppinglist_init():
 
 
 def test_valid_shoppinglist_refresh():
-    pass
+    items = {f"item{i}": Item(f"item{i}", i+1) for i in range(5)}
+    pool = ItemPool(items)
+    slist = ShoppingList()
+    slist.refresh(pool)
+    assert len(slist.list) >= 1
+    for item, qty in slist.list:
+        assert isinstance(item, Item)
+        assert isinstance(qty, int)
+        assert qty >= 1
+    items = {f"item{i}": Item(f"item{i}", i+1) for i in range(5)}
+    pool = ItemPool(items)
+    slist = ShoppingList()
+    slist.refresh(pool, size=3, quantities=[2, 3, 1])
+    assert len(slist.list) == 3
+    for (_, qty), expected_qty in zip(slist.list, [2, 3, 1]):
+        assert qty == expected_qty
+    items = {f"item{i}": Item(f"item{i}", i+1) for i in range(5)}
+    pool = ItemPool(items)
+    slist = ShoppingList()
+    short_quantities = [2]
+    slist.refresh(pool, size=3, quantities=short_quantities)
+    assert len(slist.list) == 3
+    # first quantity should remain, rest should be 1
+    _, qty1 = slist.list[0]
+    _, qty2 = slist.list[1]
+    _, qty3 = slist.list[2]
+    assert qty1 == 2
+    assert qty2 == 1
+    assert qty3 == 1
+    long_quantities = [2, 3, 4, 5]
+    slist.refresh(pool, size=2, quantities=long_quantities)
+    assert len(slist.list) == 2
+    _, qty1 = slist.list[0]
+    _, qty2 = slist.list[1]
+    assert qty1 == 2
+    assert qty2 == 3
+
+
+def test_invalid_shoppinglist_refresh():
+    items = {f"item{i}": Item(f"item{i}", i+1) for i in range(5)}
+    pool = ItemPool(items)
+    slist = ShoppingList()
+    with pytest.raises(ValueError):
+        slist.refresh(pool, size=-1)
+    with pytest.raises(ValueError):
+        slist.refresh(pool, size="three")
+    with pytest.raises(ValueError):
+        slist.refresh(pool, size=3, quantities="not_a_list")
+    with pytest.raises(ValueError):
+        slist.refresh(pool, size=3, quantities=[1, 0, 2])
+    with pytest.raises(ValueError):
+        slist.refresh(pool, size=3, quantities=[1, "a", 2])
+    items = {f"item{i}": Item(f"item{i}", i+1) for i in range(2)}
+    pool = ItemPool(items)
+    slist = ShoppingList()
+    with pytest.raises(InvalidShoppingListSizeError):
+        slist.refresh(pool, size=5)
+    
+def test_itempool_get_total_price():
+    item1 = Item("apple", 1.5)
+    item2 = Item("banana", 2.0)
+    slist = ShoppingList()
+    slist.list = [(item1, 2), (item2, 3)]
+    total_expected = 2 * item1.price + 3 * item2.price
+    assert slist.get_total_price() == round(total_expected, 2)
+
+def test_itempool_get_item_price():
+    item1 = Item("apple", 1.5)
+    item2 = Item("banana", 2.0)
+    slist = ShoppingList()
+    slist.list = [(item1, 2), (item2, 3)]
+    assert slist.get_item_price(0) == round(2 * item1.price, 2)
+    assert slist.get_item_price(1) == round(3 * item2.price, 2)
+
+def test_itempool_len():
+    item1 = Item("apple", 1.5)
+    item2 = Item("banana", 2.0)
+    slist = ShoppingList()
+    slist.list = [(item1, 2), (item2, 3)]
+    assert len(slist) == 2
+
+
+
+    
+
+    
+    
