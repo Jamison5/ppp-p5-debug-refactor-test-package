@@ -1,6 +1,7 @@
 import math
 import pytest
 from core.items import Item, ItemPool
+from core.shoppinglist import ShoppingList
 from core.errors import (
     InvalidItemNameError,
     InvalidItemPriceError,
@@ -157,3 +158,27 @@ def test_itempool_eq():
     pool2 = ItemPool({"banana": item2})
     assert pool1 != pool2
     assert pool1 != "not_an_itempool"
+
+def test_valid_shoppinglist_init():
+    shoping_lst = ShoppingList()
+    assert isinstance(shoping_lst, ShoppingList)
+    assert shoping_lst.list == []
+    item1 = Item("apple", 1.0)
+    item2 = Item("banana", 2.0)
+    pool = ItemPool({"apple": item1, "banana": item2})
+    slist = ShoppingList(item_pool=pool)
+    assert len(slist.list) >= 1
+    for item, qty in slist.list:
+        assert isinstance(item, Item)
+        assert isinstance(qty, int)
+    items = {f"item{i}": Item(f"item{i}", i+1) for i in range(5)}
+    pool = ItemPool(items)
+    slist = ShoppingList(size=3, quantities=[2, 3, 1], item_pool=pool)
+    assert len(slist.list) == 3
+    for item, qty in slist.list:
+        assert isinstance(item, Item)
+        assert isinstance(qty, int)
+
+
+def test_valid_shoppinglist_refresh():
+    pass
