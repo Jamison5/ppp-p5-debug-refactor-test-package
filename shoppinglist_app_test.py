@@ -4,7 +4,9 @@ from core.items import Item, ItemPool
 from core.errors import (
     InvalidItemNameError,
     InvalidItemPriceError,
-    InvalidItemPoolError
+    InvalidItemPoolError,
+    DuplicateItemError,
+    NonExistingItemError
 )
 
 
@@ -42,6 +44,7 @@ def test_item_get_list_item_str():
 def test_item_get_price_str():
     item = Item('bread', 3.25)
     assert item.get_price_str() == '$3.25'
+    assert item.get_price_str(quantity=2) == '$6.50'
     assert item.get_price_str(hide_price=True) == '$?.??'
     assert item.get_price_str(order=3) == '$0003.25'
 
@@ -68,6 +71,13 @@ def test_valid_itempool_init():
     assert pool.items == {}
     assert isinstance(pool.items, dict)
 
+def test_valid_itempool_add_item():
+    pool = ItemPool()
+    item = Item("apple", 1.5)
+    pool.add_item(item)
+    assert 'apple' in pool.items
+    assert pool.items['apple'] == item
+
 def test_invalid_itempool_init():
     with pytest.raises(InvalidItemPoolError):
         ItemPool(items=['not', 'a', 'dict'])
@@ -78,3 +88,72 @@ def test_invalid_itempool_init():
     invalid_dict = {"apple": "not_an_item"}
     with pytest.raises(InvalidItemPoolError):
         ItemPool(invalid_dict)
+
+def test_invalid_itempool_add_items():
+    pool = ItemPool()
+    invalid_item = 'not an item'
+    with pytest.raises(InvalidItemPoolError):
+        pool.add_item(invalid_item)
+    pool = ItemPool()
+    item1 = Item("apple", 1.5)
+    item2 = Item("apple", 2.0)
+    pool.add_item(item1)
+    with pytest.raises(DuplicateItemError):
+        pool.add_item(item2)
+
+def test_valid_itempool_remove_item():
+    pool = ItemPool()
+    item = Item("apple", 1.5)
+    pool.add_item(item)
+    pool.remove_item(item.name)
+    assert item.name not in pool.items
+
+def test_invalid_itempool_remove_item():
+    pool = ItemPool()
+    item = Item("apple", 1.5)
+    with pytest.raises(NonExistingItemError):
+        pool.remove_item(item.name)
+
+def test_itempool_get_size():
+    item1 = Item("apple", 1.5)
+    item2 = Item("banana", 2.0)
+    items_dict = {"apple": item1, "banana": item2}
+    pool = ItemPool(items_dict)
+    assert pool.get_size() == 2
+
+def test_itempool_sample_items():
+    item1 = Item("apple", 1.0)
+    item2 = Item("banana", 2.0)
+    item3 = Item("cherry", 3.0)
+    pool = ItemPool({"apple": item1, "banana": item2, "cherry": item3})
+    sampled = pool.sample_items(2)
+    assert len(sampled) == 2
+    for item in sampled:
+        assert isinstance(item, Item)
+        assert item.name in pool.items
+
+def test_itempool_repr():
+    item1 = Item("apple", 1.0)
+    item2 = Item("banana", 2.0)
+    pool = ItemPool({"apple": item1, "banana": item2})
+    repr_str = repr(pool)
+    assert repr_str.startswith("ItemPool(")
+    assert "apple" in repr_str
+    assert "banana" in repr_str
+    assert "Item(" in repr_str 
+
+def test_itempool_eq():
+    item1a = Item("apple", 1.0)
+    item2a = Item("banana", 2.0)
+    pool1 = ItemPool({"apple": item1a, "banana": item2a})
+    item1b = Item("apple", 1.0)
+    item2b = Item("banana", 2.0)
+    pool2 = ItemPool({"apple": item1b, "banana": item2b})
+    assert pool1 == pool2
+
+    item1 = Item("apple", 1.0)
+    pool1 = ItemPool({"apple": item1})
+    item2 = Item("banana", 2.0)
+    pool2 = ItemPool({"banana": item2})
+    assert pool1 != pool2
+    assert pool1 != "not_an_itempool"
